@@ -2,6 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const { Pool } = require('pg');
 const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
 require('dotenv').config();
 
 const app = express();
@@ -31,6 +32,48 @@ pool.connect((err, client, release) => {
 app.use(cors());
 app.use(express.json());
 app.use(express.static('public'));
+
+
+// =============================================
+// FUNÇÕES JWT
+// =============================================
+
+// Função para gerar token JWT
+function gerarToken(usuario) {
+  return jwt.sign(
+    { 
+      id: usuario.id,
+      email: usuario.email 
+    },
+    process.env.JWT_SECRET,
+    { expiresIn: process.env.JWT_EXPIRES_IN }
+  );
+}
+
+// Middleware para verificar token
+function autenticarToken(req, res, next) {
+  const authHeader = req.headers['authorization'];
+  const token = authHeader && authHeader.split(' ')[1]; // Bearer TOKEN
+
+  if (!token) {
+    return res.status(401).json({
+      success: false,
+      message: 'Token de acesso necessário'
+    });
+  }
+
+  jwt.verify(token, process.env.JWT_SECRET, (err, usuario) => {
+    if (err) {
+      return res.status(403).json({
+        success: false,
+        message: 'Token inválido ou expirado'
+      });
+    }
+    
+    req.usuario = usuario;
+    next();
+  });
+}
 
 // Rota SIMPLES para teste
 app.get('/', (req, res) => {
@@ -74,7 +117,7 @@ app.post('/auth/login', async (req, res) => {
           name: usuario.nome,
           email: usuario.email
         },
-        token: 'token-simulado-para-testes'
+        token: gerarToken(usuario)
       });
     } else {
       res.status(401).json({
@@ -131,7 +174,7 @@ app.post('/auth/register', async (req, res) => {
         name: novoUsuario.nome,
         email: novoUsuario.email
       },
-      token: 'token-simulado-cadastro'
+      token: gerarToken(novoUsuario)
     });
 
   } catch (error) {
@@ -143,6 +186,133 @@ app.post('/auth/register', async (req, res) => {
   }
 });
 
+
+// =============================================
+// 📍 ROTAS DE PROBLEMAS URBANOS
+// =============================================
+
+// Configuração do multer para upload de fotos
+const multer = require('multer');
+const upload = multer({ dest: 'public/uploads/' });
+
+// GET /problemas - Listar problemas por localização
+app.get('/problemas', async (req, res) => {
+  try {
+    const { lat, lng, raio = 5 } = req.query; // raio em km
+
+    const result = await pool.query(`
+      SELECT 
+        p.*,
+        u.nome as usuario_nome,
+        (p.upvotes - p.downvotes) as score
+      FROM problemas p
+      JOIN usuarios u ON p.usuario_id = u.id
+      WHERE latitude BETWEEN $1 - 0.1 AND $1 + 0.1
+        AND longitude BETWEEN $2 - 0.1 AND $2 + 0.1
+      ORDER BY score DESC
+      LIMIT 50
+    `, [parseFloat(lat), parseFloat(lng)]);
+
+    res.json({
+      success: true,
+      problemas: result.rows
+    });
+  } catch (error) {
+    console.error('Erro ao buscar problemas:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Erro ao carregar problemas'
+    });
+  }
+});
+
+// POST /problemas - Criar novo problema
+app.post('/problemas', autenticarToken, upload.single('foto'), async (req, res) => {
+  try {
+    const { titulo, descricao, latitude, longitude } = req.body;
+    const foto_url = req.file ? `/uploads/${req.file.filename}` : null;
+
+    const result = await pool.query(
+      `INSERT INTO problemas 
+       (titulo, descricao, foto_url, latitude, longitude, usuario_id) 
+       VALUES ($1, $2, $3, $4, $5, $6) 
+       RETURNING *`,
+      [titulo, descricao, foto_url, latitude, longitude, req.usuario.id]
+    );
+
+    res.json({
+      success: true,
+      message: 'Problema reportado com sucesso!',
+      problema: result.rows[0]
+    });
+  } catch (error) {
+    console.error('Erro ao criar problema:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Erro ao reportar problema'
+    });
+  }
+});
+
+// GET /problemas/:id - Detalhes de um problema
+app.get('/problemas/:id', async (req, res) => {
+  try {
+    const result = await pool.query(`
+      SELECT 
+        p.*,
+        u.nome as usuario_nome
+      FROM problemas p
+      JOIN usuarios u ON p.usuario_id = u.id
+      WHERE p.id = $1
+    `, [req.params.id]);
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: 'Problema não encontrado'
+      });
+    }
+
+    res.json({
+      success: true,
+      problema: result.rows[0]
+    });
+  } catch (error) {
+    console.error('Erro ao buscar problema:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Erro ao carregar problema'
+    });
+  }
+});
+
+app.get('/perfil', autenticarToken, async (req, res) => {
+  try {
+    const result = await pool.query(
+      'SELECT id, nome, email, criado_em FROM usuarios WHERE id = $1',
+      [req.usuario.id]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: 'Usuário não encontrado'
+      });
+    }
+
+    res.json({
+      success: true,
+      message: 'Perfil acessado com sucesso!',
+      user: result.rows[0]
+    });
+  } catch (error) {
+    console.error('Erro ao buscar perfil:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Erro interno do servidor'
+    });
+  }
+});
 
 
 
