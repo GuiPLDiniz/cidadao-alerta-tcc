@@ -1,0 +1,296 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+    background: #f5f5f5;
+    color: #2c3e50;
+}
+
+header {
+    background: #ffffff;
+    padding: 15px 25px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.logo {
+    font-size: 20px;
+    font-weight: bold;
+}
+
+nav a {
+    margin-left: 20px;
+    text-decoration: none;
+    color: #2c3e50;
+    font-size: 14px;
+}
+
+nav a:hover {
+    text-decoration: underline;
+}
+
+.container {
+    max-width: 900px;
+    margin: 40px auto;
+    padding: 0 20px 40px;
+}
+
+h1 {
+    font-size: 28px;
+    margin-bottom: 10px;
+}
+
+p.intro {
+    color: #7f8c8d;
+    margin-bottom: 30px;
+}
+
+h2 {
+    font-size: 20px;
+    margin: 30px 0 10px;
+}
+
+.legend {
+    background: #ffffff;
+    border-radius: 8px;
+    padding: 20px 20px 10px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 12px;
+    gap: 12px;
+}
+
+/* Pin da legenda (mesmo estilo visual dos pinos do mapa) */
+.legend-pin {
+    width: 20px;
+    height: 20px;
+    border-radius: 50% 50% 50% 0;
+    transform: rotate(-45deg);
+    position: relative;
+    border: 2px solid #ffffff;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+}
+
+.legend-pin::after {
+    content: "";
+    position: absolute;
+    width: 9px;
+    height: 9px;
+    background: #ffffff;
+    border-radius: 50%;
+    top: 5px;
+    left: 5px;
+}
+
+.pin-buraco { background: #e74c3c; } /* vermelho */
+.pin-lixo   { background: #27ae60; } /* verde   */
+.pin-outros { background: #7f8c8d; } /* cinza   */
+
+.tips {
+    margin-top: 20px;
+    font-size: 14px;
+    color: #7f8c8d;
+}
+
+ul {
+    margin-left: 18px;
+    margin-top: 8px;
+}
+
+
+.user-avatar {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    background: #ecf0f1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    color: #2c3e50;
+}
+
+.user-name {
+    font-weight: 500;
+    font-size: 14px;
+}
+
+.btn-secondary {
+    background: #e74c3c;
+    color: #ffffff;
+    border: none;
+    border-radius: 6px;
+    padding: 8px 14px;
+    font-size: 13px;
+    cursor: pointer;
+}
+
+/* Conteúdo principal */
+.container {
+    max-width: 900px;
+    margin: 40px auto;
+    padding: 0 20px 40px;
+}
+
+h1 {
+    font-size: 28px;
+    margin-bottom: 10px;
+}
+
+p.intro {
+    color: #7f8c8d;
+    margin-bottom: 30px;
+}
+
+/* Seções */
+.section {
+    background: #ffffff;
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    margin-bottom: 25px;
+}
+
+.section h2 {
+    font-size: 20px;
+    margin-bottom: 10px;
+}
+
+.section p.desc {
+    font-size: 14px;
+    color: #7f8c8d;
+    margin-bottom: 15px;
+}
+
+/* Lista de passos */
+.steps-list {
+    margin-left: 18px;
+    font-size: 14px;
+    color: #2c3e50;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+/* Legenda dos pinos */
+.legend-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    margin: 10px 0 10px;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.pin-icon {
+    width: 26px;
+    height: 26px;
+    border-radius: 50% 50% 50% 0;
+    transform: rotate(-45deg);
+    position: relative;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    border: 2px solid #ffffff;
+    flex-shrink: 0;
+}
+
+.pin-icon::after {
+    content: "";
+    position: absolute;
+    width: 12px;
+    height: 12px;
+    background: #ffffff;
+    border-radius: 50%;
+    top: 6px;
+    left: 6px;
+}
+
+/* Cores dos tipos */
+.pin-buraco {
+    background: #e74c3c; /* vermelho */
+}
+
+.pin-lixo {
+    background: #27ae60; /* verde */
+}
+
+.pin-outros {
+    background: #7f8c8d; /* cinza */
+}
+
+.legend-text {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.legend-text strong {
+    font-size: 14px;
+}
+
+.legend-text span {
+    font-size: 13px;
+    color: #7f8c8d;
+}
+
+.extra-note {
+    font-size: 12px;
+    color: #95a5a6;
+    margin-top: 8px;
+}
+
+/* FAQ */
+.faq-item {
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px solid #ecf0f1;
+}
+
+.faq-item h3 {
+    font-size: 15px;
+    margin-bottom: 5px;
+}
+
+.faq-item p {
+    font-size: 13px;
+    color: #7f8c8d;
+}
+
+/* Footer */
+footer {
+    text-align: center;
+    font-size: 12px;
+    color: #95a5a6;
+    padding: 20px;
+}
+
+/* Responsivo */
+@media (max-width: 600px) {
+    header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+
+    nav {
+        width: 100%;
+    }
+
+    nav a {
+        margin-left: 0;
+        margin-right: 15px;
+    }
+}

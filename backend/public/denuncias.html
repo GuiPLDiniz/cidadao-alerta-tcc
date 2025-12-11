@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cidadão Alerta - Minhas Denúncias</title>
+
+    <link rel="stylesheet" href="global.css">
+    <link rel="stylesheet" href="denuncias.css">
+</head>
+<body>
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <h2>Cidadão Alerta</h2>
+        </div>
+        
+        <ul class="sidebar-menu">
+            <li><a href="mapa.html" id="menu-mapa">Mapa de Denúncias</a></li>
+            <li><a href="denuncias.html" class="active" id="menu-denuncias">Minhas Denúncias</a></li>
+            <li><a href="conta.html" id="menu-conta">Minha Conta</a></li>
+            <li><a href="ajuda.html" id="menu-ajuda">Ajuda</a></li>
+            <li><a href="#" onclick="logout()" id="menu-sair">Sair</a></li>
+        </ul>
+        
+        <div class="sidebar-footer">
+            <small>Cidadão Alerta v1.0</small>
+        </div>
+    </div>
+
+    <div class="main-content" id="mainContent">
+        <div class="header">
+            <div class="logo-container">
+                <button class="menu-toggle" id="menuToggle">☰</button>
+                <div class="logo">🏙️ Cidadão Alerta</div>
+            </div>
+            <div class="user-info">
+                <div class="user-avatar" title="Usuário autenticado">👤</div>
+            </div>
+        </div>
+
+        <div class="content-wrapper">
+            <h1 class="page-title">Minhas Denúncias</h1>
+            <p class="page-subtitle">Veja todas as denúncias que você já registrou na plataforma.</p>
+
+            <div id="loadingText" class="loading-inline" style="display:none;">Carregando suas denúncias...</div>
+
+            <div class="filters">
+                <button class="filter-pill active" data-status="todos">Todos</button>
+                <button class="filter-pill" data-status="aberto">Abertos</button>
+                <button class="filter-pill" data-status="andamento">Em andamento</button>
+                <button class="filter-pill" data-status="resolvido">Resolvidos</button>
+            </div>
+
+            <div id="problemsList" class="problems-list"></div>
+
+            <div id="emptyState" class="empty-state" style="display:none;">
+                <strong>Você ainda não registrou nenhuma denúncia.</strong>
+                Clique no mapa para registrar um problema e ele aparecerá aqui.
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentUser = null;
+        let allProblems = [];
+
+        document.addEventListener('DOMContentLoaded', () => {
+            checkAuth();
+            setupSidebar();
+            loadMinhasDenuncias();
+            setupFilters();
+        });
+
+        function checkAuth() {
+            const token = localStorage.getItem('token');
+            const user = localStorage.getItem('user');
+
+            if (!token || !user) {
+                window.location.href = '/login.html';
+                return;
+            }
+
+            currentUser = JSON.parse(user);
+        }
+
+        function setupSidebar() {
+            const menuToggle = document.getElementById('menuToggle');
+            const sidebarOverlay = document.getElementById('sidebarOverlay');
+
+            menuToggle.addEventListener('click', (e) => {
+                e.stopPropagation();
+                toggleSidebar(true);
+            });
+
+            sidebarOverlay.addEventListener('click', () => toggleSidebar(false));
+
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') toggleSidebar(false);
+            });
+        }
+
+        function toggleSidebar(show) {
+            const sidebar = document.getElementById('sidebar');
+            const sidebarOverlay = document.getElementById('sidebarOverlay');
+            const mainContent = document.getElementById('mainContent');
+
+            if (show === undefined) show = !sidebar.classList.contains('active');
+
+            if (show) {
+                sidebar.classList.add('active');
+                sidebarOverlay.addClass = 'active';
+                sidebarOverlay.classList.add('active');
+                if (window.innerWidth > 768) mainContent.classList.add('sidebar-active');
+            } else {
+                sidebar.classList.remove('active');
+                sidebarOverlay.classList.remove('active');
+                mainContent.classList.remove('sidebar-active');
+            }
+        }
+
+        function logout() {
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+            window.location.href = '/index.html';
+        }
+
+        async function loadMinhasDenuncias() {
+            const loadingText = document.getElementById('loadingText');
+            const list = document.getElementById('problemsList');
+            const empty = document.getElementById('emptyState');
+
+            loadingText.style.display = 'block';
+            list.innerHTML = '';
+            empty.style.display = 'none';
+
+            try {
+                const token = localStorage.getItem('token');
+
+                const response = await fetch('/problemas/minhas', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    allProblems = data.problemas || [];
+                    renderProblems('todos');
+                } else {
+                    console.error('Erro ao carregar denúncias:', data.message);
+                    empty.style.display = 'block';
+                }
+            } catch (err) {
+                console.error('Erro de conexão:', err);
+                empty.style.display = 'block';
+            } finally {
+                loadingText.style.display = 'none';
+            }
+        }
+
+        function setupFilters() {
+            const pills = document.querySelectorAll('.filter-pill');
+            pills.forEach(pill => {
+                pill.addEventListener('click', () => {
+                    pills.forEach(p => p.classList.remove('active'));
+                    pill.classList.add('active');
+                    const status = pill.getAttribute('data-status');
+                    renderProblems(status);
+                });
+            });
+        }
+
+        function renderProblems(statusFilter) {
+            const list = document.getElementById('problemsList');
+            const empty = document.getElementById('emptyState');
+
+            list.innerHTML = '';
+
+            let filtered = allProblems;
+
+            if (statusFilter !== 'todos') {
+                filtered = allProblems.filter(p => (p.status || 'aberto') === statusFilter);
+            }
+
+            if (!filtered.length) {
+                empty.style.display = 'block';
+                return;
+            }
+
+            empty.style.display = 'none';
+
+            filtered.forEach(p => {
+                const item = document.createElement('div');
+                item.className = 'problem-item';
+
+                const statusLabel = (p.status || 'aberto');
+                let statusText = 'Aberto';
+                let statusStyle = 'background:#fdecea;color:#c0392b;';
+
+                if (statusLabel === 'andamento') {
+                    statusText = 'Em andamento';
+                    statusStyle = 'background:#fff7e6;color:#e67e22;';
+                } else if (statusLabel === 'resolvido') {
+                    statusText = 'Resolvido';
+                    statusStyle = 'background:#e8f6f0;color:#27ae60;';
+                }
+
+                const dataFormatada = p.created_at
+                    ? new Date(p.created_at).toLocaleDateString('pt-BR')
+                    : 'Data não informada';
+
+                item.innerHTML = `
+                    <div class="problem-header">
+                        <div class="problem-title">${p.titulo}</div>
+                        <div class="problem-status" style="${statusStyle}">${statusText}</div>
+                    </div>
+                    <div class="problem-meta">
+                        ${dataFormatada}
+                        ${p.local || p.bairro ? ' · ' + (p.local || p.bairro) : ''}
+                    </div>
+                    <div class="problem-description">
+                        ${p.descricao || 'Sem descrição detalhada.'}
+                    </div>
+                    <div class="problem-footer">
+                        <span>👍 ${p.upvotes || 0} · 👎 ${p.downvotes || 0}</span>
+                        <span>ID: ${p.id}</span>
+                    </div>
+                `;
+                list.appendChild(item);
+            });
+        }
+    </script>
+</body>
+</html>
