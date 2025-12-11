@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cidadão Alerta - Sua voz. Seus direitos. Sua cidade.</title>
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- CSS global + específico da home -->
+    <link rel="stylesheet" href="global.css">
+    <link rel="stylesheet" href="index.css">
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <div class="container header-container">
+            <div class="logo">
+                <div class="logo-icon">
+                    <i class="fas fa-city"></i>
+                </div>
+                <div class="logo-text">
+                    <h1>Cidadão Alerta</h1>
+                    <p>Sua voz. Seus direitos. Sua cidade.</p>
+                </div>
+            </div>
+            <nav>
+                <ul>
+                    <li><a href="#how-it-works">Como Funciona</a></li>
+                    <li><a href="#map-preview">Mapa</a></li>
+                    <li><a href="#problems">Problemas</a></li>
+                    <li><a href="login.html" class="btn-login">Login / Cadastro</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="container hero-content">
+            <h2>Sua voz. Seus direitos. Sua cidade.</h2>
+            <p>Participe da transformação da sua comunidade. Identifique problemas, denuncie e mobilize-se por soluções.</p>
+
+            <div class="hero-buttons">
+                <a href="mapa.html" class="btn btn-primary">
+                    <i class="fas fa-play"></i>
+                    Começar Agora
+                </a>
+                <a href="mapa.html" class="btn btn-secondary">
+                    <i class="fas fa-map"></i>
+                    Ver Mapa
+                </a>
+            </div>
+
+            <div class="login-link">
+                <p>Já tem conta? <a href="login.html">Faça login aqui</a></p>
+            </div>
+        </div>
+    </section>
+
+    <!-- How it works -->
+    <section class="how-it-works" id="how-it-works">
+        <div class="container">
+            <h2 class="section-title">Como Funciona</h2>
+            <div class="steps-container">
+                <div class="step">
+                    <div class="step-number">1</div>
+                    <div class="step-icon">
+                        <i class="fas fa-camera"></i>
+                    </div>
+                    <h3>Identifique</h3>
+                    <p>Encontrou um problema? Tire uma foto e registre o que está acontecendo no seu bairro.</p>
+                </div>
+
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <div class="step-icon">
+                        <i class="fas fa-map-marker-alt"></i>
+                    </div>
+                    <h3>Denuncie no mapa</h3>
+                    <p>Clique no mapa para marcar o local exato, descreva o problema em detalhes e envie a denúncia.</p>
+                </div>
+
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <div class="step-icon">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <h3>Mobilize</h3>
+                    <p>Outros cidadãos podem apoiar, comentar e dar visibilidade para que as autoridades ajam mais rápido.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- MAP PREVIEW + MINI TUTORIAL -->
+    <section class="map-section" id="map-preview">
+        <div class="container map-grid">
+            <div class="map-card">
+                <div class="map-card-header">
+                    <i class="fas fa-map"></i>
+                    Mapa de Denúncias (prévia)
+                </div>
+                <div class="map-card-body">
+                    <iframe
+                        src="https://www.openstreetmap.org/export/embed.html?bbox=-46.70%2C-23.60%2C-46.57%2C-23.50&amp;layer=mapnik&amp;marker=-23.55%2C-46.63"
+                        loading="lazy"
+                        referrerpolicy="no-referrer-when-downgrade"
+                        aria-label="Prévia do mapa de denúncias">
+                    </iframe>
+                </div>
+                <div class="map-card-footer">
+                    <div class="map-legend">
+                        <div class="legend-item">
+                            <span class="legend-color green"></span> Atendido / resolvido
+                        </div>
+                        <div class="legend-item">
+                            <span class="legend-color yellow"></span> Em análise
+                        </div>
+                        <div class="legend-item">
+                            <span class="legend-color red"></span> Problemas recentes
+                        </div>
+                    </div>
+                    <span>Exemplo de visualização do mapa utilizado na aplicação.</span>
+                </div>
+            </div>
+
+            <div>
+                <h2 class="map-tutorial-title">Veja como usar o mapa na prática</h2>
+                <p class="map-tutorial-text">
+                    O mapa é o coração do Cidadão Alerta. É nele que você escolhe o ponto do problema,
+                    acompanha outras denúncias e enxerga as áreas mais críticas da cidade.
+                </p>
+
+                <ul class="map-tutorial-steps">
+                    <li>
+                        <span class="step-badge">1</span>
+                        <p>Acesse <strong>“Começar Agora”</strong> e faça login ou cadastro.</p>
+                    </li>
+                    <li>
+                        <span class="step-badge">2</span>
+                        <p>No mapa, <strong>clique no local do problema</strong> para abrir o formulário de denúncia.</p>
+                    </li>
+                    <li>
+                        <span class="step-badge">3</span>
+                        <p>Preencha o título, a descrição, envie uma foto e acompanhe sua denúncia junto com outros moradores.</p>
+                    </li>
+                </ul>
+
+                <div class="map-tutorial-cta">
+                    <a href="mapa.html" class="btn btn-secondary">
+                        <i class="fas fa-location-arrow"></i>
+                        Abrir mapa de denúncias
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Featured Problems -->
+    <section class="featured-problems" id="problems">
+        <div class="container">
+            <h2 class="section-title">Problemas Recentes em Destaque</h2>
+            <div class="problems-container">
+                <div class="problem-card">
+                    <div class="problem-image">
+                        <div class="problem-tag">Infraestrutura</div>
+                        <img src="https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?auto=format&fit=crop&w=800&q=80" alt="Buraco na rua">
+                    </div>
+                    <div class="problem-content">
+                        <h3 class="problem-title">Buraco na Avenida Principal</h3>
+                        <div class="problem-meta">
+                            <span><i class="far fa-calendar"></i> Nov 30, 2025</span>
+                            <span><i class="fas fa-map-marker-alt"></i> Centro</span>
+                        </div>
+                        <p class="problem-description">Grande buraco na avenida principal que já causou vários acidentes. Necessita urgente reparo.</p>
+                        <div class="problem-stats">
+                            <div class="votes">
+                                <div class="upvotes">
+                                    <i class="fas fa-thumbs-up"></i>
+                                    504
+                                </div>
+                                <div class="downvotes">
+                                    <i class="fas fa-thumbs-down"></i>
+                                    12
+                                </div>
+                            </div>
+                            <div class="comments">
+                                <i class="far fa-comment"></i> 45
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="problem-card">
+                    <div class="problem-image">
+                        <div class="problem-tag">Limpeza</div>
+                        <img src="https://images.unsplash.com/photo-1532996122724-e3c354a0b15b?auto=format&fit=crop&w=800&q=80" alt="Lixo acumulado">
+                    </div>
+                    <div class="problem-content">
+                        <h3 class="problem-title">Lixo Acumulado no Parque</h3>
+                        <div class="problem-meta">
+                            <span><i class="far fa-calendar"></i> Nov 11, 2025</span>
+                            <span><i class="fas fa-map-marker-alt"></i> Parque Central</span>
+                        </div>
+                        <p class="problem-description">Acúmulo de lixo há mais de uma semana no parque central, causando mau cheiro e atraindo animais.</p>
+                        <div class="problem-stats">
+                            <div class="votes">
+                                <div class="upvotes">
+                                    <i class="fas fa-thumbs-up"></i>
+                                    330
+                                </div>
+                                <div class="downvotes">
+                                    <i class="fas fa-thumbs-down"></i>
+                                    8
+                                </div>
+                            </div>
+                            <div class="comments">
+                                <i class="far fa-comment"></i> 28
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="problem-card">
+                    <div class="problem-image">
+                        <div class="problem-tag">Iluminação</div>
+                        <img src="https://images.unsplash.com/photo-1506905925346-21bda4d32df4?auto=format&fit=crop&w=800&q=80" alt="Poste quebrado">
+                    </div>
+                    <div class="problem-content">
+                        <h3 class="problem-title">Poste de Luz Quebrado</h3>
+                        <div class="problem-meta">
+                            <span><i class="far fa-calendar"></i> Nov 28, 2025</span>
+                            <span><i class="fas fa-map-marker-alt"></i> Rua das Flores</span>
+                        </div>
+                        <p class="problem-description">Poste de luz quebrado há mais de um mês, deixando a rua escura e perigosa à noite.</p>
+                        <div class="problem-stats">
+                            <div class="votes">
+                                <div class="upvotes">
+                                    <i class="fas fa-thumbs-up"></i>
+                                    215
+                                </div>
+                                <div class="downvotes">
+                                    <i class="fas fa-thumbs-down"></i>
+                                    5
+                                </div>
+                            </div>
+                            <div class="comments">
+                                <i class="far fa-comment"></i> 34
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="cta">
+        <div class="container">
+            <h2>Junte-se à Mudança!</h2>
+            <p>Faça parte da comunidade que está transformando cidades e garantindo melhor qualidade de vida para todos.</p>
+            <a href="login.html" class="btn btn-cta">
+                <i class="fas fa-user-plus"></i>
+                Cadastre-se
+            </a>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="footer-container">
+                <div class="footer-column">
+                    <h3>Cidadão Alerta</h3>
+                    <p>Sua voz. Seus direitos. Sua cidade. Participe da transformação da sua comunidade.</p>
+                    <div class="social-icons">
+                        <a href="#"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                        <a href="#"><i class="fab fa-youtube"></i></a>
+                    </div>
+                </div>
+                <div class="footer-column">
+                    <h3>Links Rápidos</h3>
+                    <ul>
+                        <li><a href="#how-it-works">Como Funciona</a></li>
+                        <li><a href="#problems">Problemas em Destaque</a></li>
+                        <li><a href="mapa.html">Mapa de Denúncias</a></li>
+                    </ul>
+                </div>
+                <div class="footer-column">
+                    <h3>Recursos</h3>
+                    <ul>
+                        <li><a href="#">Central de Ajuda</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="copyright">
+                <p>&copy; 2023 Cidadão Alerta. Todos os direitos reservados.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Suave rolagem para âncoras
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                if (this.getAttribute('href') === '#') return;
+
+                e.preventDefault();
+                const targetId = this.getAttribute('href');
+                if (targetId === '#') return;
+
+                const targetElement = document.querySelector(targetId);
+                if (targetElement) {
+                    window.scrollTo({
+                        top: targetElement.offsetTop - 80,
+                        behavior: 'smooth'
+                    });
+                }
+            });
+        });
+    </script>
+</body>
+</html>
+

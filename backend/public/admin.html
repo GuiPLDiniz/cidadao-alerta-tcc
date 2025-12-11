@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Painel Administrativo - Cidadão Alerta</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: #f5f5f5;
+      color: #2c3e50;
+    }
+    .layout {
+      display: grid;
+      grid-template-columns: 260px 1fr;
+      min-height: 100vh;
+    }
+    .sidebar {
+      background: #2c3e50;
+      color: #ecf0f1;
+      padding: 20px 18px;
+    }
+    .sidebar h1 {
+      font-size: 20px;
+      margin-bottom: 25px;
+    }
+    .sidebar ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+    .sidebar li {
+      margin-bottom: 8px;
+    }
+    .sidebar a {
+      display: block;
+      padding: 10px 12px;
+      border-radius: 6px;
+      color: #ecf0f1;
+      text-decoration: none;
+      font-size: 14px;
+    }
+    .sidebar a.active,
+    .sidebar a:hover {
+      background: #34495e;
+    }
+    .content {
+      padding: 20px 24px 40px;
+    }
+    .content-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+    .content-header h2 {
+      margin: 0;
+      font-size: 22px;
+    }
+    .filters {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 20px;
+    }
+    .filters select {
+      padding: 6px 10px;
+      border-radius: 6px;
+      border: 1px solid #d0d7de;
+      font-size: 14px;
+    }
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 15px;
+      margin-bottom: 20px;
+    }
+    .card {
+      background: #ffffff;
+      border-radius: 8px;
+      padding: 12px 14px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+    }
+    .card span.label {
+      font-size: 12px;
+      color: #7f8c8d;
+    }
+    .card strong {
+      font-size: 20px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: #ffffff;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+    }
+    th, td {
+      padding: 10px 12px;
+      font-size: 13px;
+      border-bottom: 1px solid #ecf0f1;
+    }
+    th {
+      background: #f8fafc;
+      text-align: left;
+    }
+    tr:last-child td {
+      border-bottom: none;
+    }
+    .status-pill {
+      padding: 3px 8px;
+      border-radius: 999px;
+      font-size: 11px;
+      display: inline-block;
+    }
+    .status-aberto { background:#fdecea; color:#c0392b; }
+    .status-andamento { background:#fff7e6; color:#e67e22; }
+    .status-resolvido { background:#e8f6f0; color:#27ae60; }
+  </style>
+</head>
+<body>
+  <div class="layout">
+    <aside class="sidebar">
+      <h1>🏙️ Cidadão Alerta</h1>
+      <ul>
+        <li><a href="#" class="active">Painel geral</a></li>
+        <li><a href="#">Denúncias por bairro</a></li>
+        <li><a href="#">Usuários</a></li>
+        <li><a href="#">Relatórios</a></li>
+      </ul>
+    </aside>
+    <main class="content">
+      <div class="content-header">
+        <h2>Painel administrativo</h2>
+        <span style="font-size:13px; color:#7f8c8d;">Exemplo de interface para gestores públicos</span>
+      </div>
+
+      <div class="filters">
+        <select>
+          <option>Últimos 7 dias</option>
+          <option>Últimos 30 dias</option>
+          <option>Últimos 12 meses</option>
+        </select>
+        <select>
+          <option>Todos os tipos de problema</option>
+          <option>Buracos e bueiros</option>
+          <option>Lixo e entulho</option>
+          <option>Iluminação</option>
+          <option>Outros</option>
+        </select>
+        <select>
+          <option>Todos os status</option>
+          <option>Aberto</option>
+          <option>Em andamento</option>
+          <option>Resolvido</option>
+        </select>
+      </div>
+
+      <div class="cards">
+        <div class="card">
+          <span class="label">Denúncias totais</span><br>
+          <strong>128</strong>
+        </div>
+        <div class="card">
+          <span class="label">Abertas</span><br>
+          <strong>54</strong>
+        </div>
+        <div class="card">
+          <span class="label">Em andamento</span><br>
+          <strong>37</strong>
+        </div>
+        <div class="card">
+          <span class="label">Resolvidas</span><br>
+          <strong>37</strong>
+        </div>
+      </div>
+
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Tipo</th>
+            <th>Bairro</th>
+            <th>Status</th>
+            <th>Data</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>#102</td>
+            <td>Buracos na avenida</td>
+            <td>Centro</td>
+            <td><span class="status-pill status-aberto">Aberto</span></td>
+            <td>10/12/2025</td>
+          </tr>
+          <tr>
+            <td>#87</td>
+            <td>Lixo acumulado</td>
+            <td>Bairro Nova Esperança</td>
+            <td><span class="status-pill status-andamento">Em andamento</span></td>
+            <td>08/12/2025</td>
+          </tr>
+          <tr>
+            <td>#65</td>
+            <td>Poste sem iluminação</td>
+            <td>Jardim das Flores</td>
+            <td><span class="status-pill status-resolvido">Resolvido</span></td>
+            <td>05/12/2025</td>
+          </tr>
+        </tbody>
+      </table>
+    </main>
+  </div>
+</body>
+</html>

@@ -3,268 +3,123 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cidadão Alerta - Mapa</title>
+    <title>Cidadão Alerta - Mapa de Denúncias</title>
     
     <!-- Mapbox CSS -->
     <link href="https://api.mapbox.com/mapbox-gl-js/v2.14.1/mapbox-gl.css" rel="stylesheet">
-    
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
 
-        body {
-            background: #f5f5f5;
-        }
-
-        #map {
-            position: absolute;
-            top: 0;
-            bottom: 0;
-            width: 100%;
-        }
-
-        .header {
-            position: absolute;
-            top: 20px;
-            left: 20px;
-            right: 20px;
-            z-index: 1000;
-            background: white;
-            padding: 15px 20px;
-            border-radius: 10px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-            display: flex;
-            justify-content: between;
-            align-items: center;
-        }
-
-        .logo {
-            font-size: 20px;
-            font-weight: bold;
-            color: #2c3e50;
-        }
-
-        .user-info {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-
-        .user-name {
-            font-weight: 500;
-            color: #2c3e50;
-        }
-
-        .btn-logout {
-            background: #e74c3c;
-            color: white;
-            border: none;
-            padding: 8px 15px;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 14px;
-        }
-
-        .btn-logout:hover {
-            background: #c0392b;
-        }
-
-        .btn-add-problem {
-            position: absolute;
-            bottom: 30px;
-            right: 30px;
-            z-index: 1000;
-            background: #27ae60;
-            color: white;
-            border: none;
-            width: 60px;
-            height: 60px;
-            border-radius: 50%;
-            font-size: 24px;
-            cursor: pointer;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .btn-add-problem:hover {
-            background: #219a52;
-            transform: scale(1.05);
-        }
-
-        /* Modal de cadastro de problema */
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.5);
-            z-index: 2000;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .modal-content {
-            background: white;
-            padding: 30px;
-            border-radius: 10px;
-            width: 90%;
-            max-width: 500px;
-            max-height: 80vh;
-            overflow-y: auto;
-        }
-
-        .modal h2 {
-            margin-bottom: 20px;
-            color: #2c3e50;
-        }
-
-        .form-group {
-            margin-bottom: 20px;
-        }
-
-        .form-group label {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: 500;
-            color: #2c3e50;
-        }
-
-        .form-group input,
-        .form-group textarea {
-            width: 100%;
-            padding: 10px;
-            border: 2px solid #ddd;
-            border-radius: 5px;
-            font-size: 16px;
-        }
-
-        .form-group input:focus,
-        .form-group textarea:focus {
-            outline: none;
-            border-color: #3498db;
-        }
-
-        .btn-submit {
-            background: #3498db;
-            color: white;
-            border: none;
-            padding: 12px 25px;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 16px;
-            width: 100%;
-        }
-
-        .btn-submit:hover {
-            background: #2980b9;
-        }
-
-        .btn-close {
-            background: #95a5a6;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 5px;
-            cursor: pointer;
-            margin-top: 10px;
-            width: 100%;
-        }
-
-        .btn-close:hover {
-            background: #7f8c8d;
-        }
-
-        /* Marcadores personalizados */
-        .mapboxgl-marker {
-            cursor: pointer;
-        }
-
-        .problem-marker {
-            background: #e74c3c;
-            border: 3px solid white;
-            border-radius: 50%;
-            width: 20px;
-            height: 20px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
-        }
-
-        .problem-marker.high-score {
-            background: #27ae60;
-        }
-
-        .problem-marker.medium-score {
-            background: #f39c12;
-        }
-
-        .loading {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            z-index: 1000;
-            background: white;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-        }
-    </style>
+    <!-- Seus CSS -->
+    <link rel="stylesheet" href="global.css">
+    <link rel="stylesheet" href="mapa.css">
 </head>
 <body>
-    <!-- Header -->
-    <div class="header">
-        <div class="logo">🏙️ Cidadão Alerta</div>
-        <div class="user-info">
-            <span class="user-name" id="userName">Usuário</span>
-            <button class="btn-logout" onclick="logout()">Sair</button>
+    <!-- Overlay para fechar sidebar (mobile) -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <h2>Cidadão Alerta</h2>
+        </div>
+        
+        <ul class="sidebar-menu">
+            <li>
+                <a href="mapa.html" class="active" id="menu-mapa">
+                    Mapa de Denúncias
+                </a>
+            </li>
+            <li>
+                <a href="denuncias.html" id="menu-denuncias">
+                    Minhas Denúncias
+                </a>
+            </li>
+            <li>
+                <a href="conta.html" id="menu-conta">
+                    Minha Conta
+                </a>
+            </li>
+            <li>
+                <a href="ajuda.html" id="menu-ajuda">
+                    Ajuda
+                </a>
+            </li>
+            <li>
+                <a href="#" onclick="logout()" id="menu-sair">
+                    Sair
+                </a>
+            </li>
+        </ul>
+        
+        <div class="sidebar-footer">
+            <small>Cidadão Alerta v1.0</small>
         </div>
     </div>
 
-    <!-- Mapa -->
-    <div id="map"></div>
-
-    <!-- Botão Adicionar Problema -->
-    <button class="btn-add-problem" onclick="openProblemModal()">+</button>
-
-    <!-- Modal de Cadastro de Problema -->
-    <div id="problemModal" class="modal">
-        <div class="modal-content">
-            <h2>📝 Reportar Problema</h2>
-            <form id="problemForm">
-                <div class="form-group">
-                    <label for="titulo">Título do Problema:</label>
-                    <input type="text" id="titulo" name="titulo" placeholder="Ex: Buraco na rua, Lixo acumulado..." required>
-                </div>
-                
-                <div class="form-group">
-                    <label for="descricao">Descrição:</label>
-                    <textarea id="descricao" name="descricao" rows="3" placeholder="Descreva o problema em detalhes..."></textarea>
-                </div>
-                
-                <div class="form-group">
-                    <label for="foto">Foto (opcional):</label>
-                    <input type="file" id="foto" name="foto" accept="image/*">
-                </div>
-                
-                <input type="hidden" id="latitude" name="latitude">
-                <input type="hidden" id="longitude" name="longitude">
-                
-                <button type="submit" class="btn-submit">📤 Enviar Denúncia</button>
-                <button type="button" class="btn-close" onclick="closeProblemModal()">Cancelar</button>
-            </form>
+    <!-- Conteúdo principal -->
+    <div class="main-content" id="mainContent">
+        <!-- Header -->
+        <div class="header">
+            <div class="logo-container">
+                <button class="menu-toggle" id="menuToggle">
+                    ☰
+                </button>
+                <div class="logo">🏙️ Cidadão Alerta</div>
+            </div>
+            <div class="user-info" id="userInfo">
+                <div class="user-avatar" id="userAvatar" title="Ir para Minha Conta">👤</div>
+                <span class="user-name" id="userNameHeader"></span>
+            </div>
         </div>
-    </div>
 
-    <!-- Loading -->
-    <div id="loading" class="loading" style="display: none;">
-        Carregando...
+        <!-- Mapa -->
+        <div id="map"></div>
+
+        <!-- Botão Adicionar Problema -->
+        <button class="btn-add-problem" onclick="openProblemModal()">+</button>
+
+        <!-- Modal de Cadastro de Problema -->
+        <div id="problemModal" class="modal">
+            <div class="modal-content">
+                <h2>📝 Reportar Problema</h2>
+                <form id="problemForm">
+                    <div class="form-group">
+                        <label for="tipo">Tipo de Problema:</label>
+                        <select id="tipo" name="titulo" required>
+                            <option value="">Selecione um tipo</option>
+                            <option value="Buracos e bueiros">Buracos ou bueiros</option>
+                            <option value="Lixo e entulho">Lixo acumulado / entulho</option>
+                            <option value="Iluminação pública">Iluminação pública</option>
+                            <option value="Outros">Outros tipos de problema</option>
+                        </select>
+                        <small class="tip-text">
+                            Escolha o tipo acima e use a descrição para detalhar melhor o problema.
+                        </small>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="descricao">Descrição:</label>
+                        <textarea id="descricao" name="descricao" rows="3" placeholder="Descreva o problema em detalhes..."></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="foto">Foto (opcional):</label>
+                        <input type="file" id="foto" name="foto" accept="image/*">
+                    </div>
+                    
+                    <input type="hidden" id="latitude" name="latitude">
+                    <input type="hidden" id="longitude" name="longitude">
+                    
+                    <button type="submit" class="btn-submit">📤 Enviar Denúncia</button>
+                    <button type="button" class="btn-close" onclick="closeProblemModal()">Cancelar</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Loading -->
+        <div id="loading" class="loading" style="display: none;">
+            <div class="loading-spinner"></div>
+            <span>Carregando...</span>
+        </div>
     </div>
 
     <!-- Mapbox JS -->
@@ -278,15 +133,16 @@
         let userLocation = null;
         let markers = [];
         let currentUser = null;
+        let isSidebarActive = false;
 
-        // Inicializar mapa quando a página carregar
+        // Inicializar quando a página carregar
         document.addEventListener('DOMContentLoaded', function() {
             checkAuth();
             initMap();
-            loadUserInfo();
+            setupSidebar();
         });
 
-        // Verificar se usuário está logado
+        // Verificar se usuário está logado e configurar header
         function checkAuth() {
             const token = localStorage.getItem('token');
             const user = localStorage.getItem('user');
@@ -297,12 +153,82 @@
             }
             
             currentUser = JSON.parse(user);
+
+            // Atualiza nome no header
+            const userNameEl = document.getElementById('userNameHeader');
+            if (userNameEl && currentUser.name) {
+                userNameEl.textContent = currentUser.name;
+            }
+
+            // Clique no avatar OU na área user-info -> vai para Minha Conta
+            const avatarEl = document.getElementById('userAvatar');
+            const userInfo = document.getElementById('userInfo');
+            const goToConta = () => window.location.href = 'conta.html';
+
+            if (avatarEl) avatarEl.addEventListener('click', goToConta);
+            if (userInfo) userInfo.addEventListener('click', goToConta);
         }
 
-        // Carregar informações do usuário
-        function loadUserInfo() {
-            if (currentUser) {
-                document.getElementById('userName').textContent = currentUser.name;
+        // Configurar sidebar
+        function setupSidebar() {
+            const menuToggle = document.getElementById('menuToggle');
+            const sidebarOverlay = document.getElementById('sidebarOverlay');
+            const mainContent = document.getElementById('mainContent');
+            
+            // Abrir sidebar
+            menuToggle.addEventListener('click', function(e) {
+                e.stopPropagation();
+                toggleSidebar(true);
+            });
+            
+            // Fechar sidebar ao clicar no overlay (mobile)
+            sidebarOverlay.addEventListener('click', function() {
+                toggleSidebar(false);
+            });
+            
+            // Fechar sidebar ao clicar em um item do menu (exceto Sair)
+            const menuItems = document.querySelectorAll('.sidebar-menu a:not(#menu-sair)');
+            menuItems.forEach(item => {
+                item.addEventListener('click', function() {
+                    toggleSidebar(false);
+                });
+            });
+            
+            // Fechar sidebar ao clicar no mapa
+            document.getElementById('map').addEventListener('click', function() {
+                toggleSidebar(false);
+            });
+            
+            // Fechar sidebar com a tecla ESC
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') {
+                    toggleSidebar(false);
+                }
+            });
+        }
+        
+        // Alternar visibilidade do sidebar
+        function toggleSidebar(show) {
+            const sidebar = document.getElementById('sidebar');
+            const sidebarOverlay = document.getElementById('sidebarOverlay');
+            const mainContent = document.getElementById('mainContent');
+            
+            if (show === undefined) {
+                show = !sidebar.classList.contains('active');
+            }
+            
+            if (show) {
+                sidebar.classList.add('active');
+                sidebarOverlay.classList.add('active');
+                if (window.innerWidth > 768) {
+                    mainContent.classList.add('sidebar-active');
+                }
+                isSidebarActive = true;
+            } else {
+                sidebar.classList.remove('active');
+                sidebarOverlay.classList.remove('active');
+                mainContent.classList.remove('sidebar-active');
+                isSidebarActive = false;
             }
         }
 
@@ -334,9 +260,12 @@
                         loadProblemas(-23.5505, -46.6333); // Fallback para SP
                     }
                 );
+            } else {
+                // Se geolocalização não disponível, usa SP
+                loadProblemas(-23.5505, -46.6333);
             }
 
-            // Quando clicar no mapa, definir coordenadas para o formulário
+            // Quando clicar no mapa, definir coordenadas para o formulário e abrir modal
             map.on('click', function(e) {
                 document.getElementById('latitude').value = e.lngLat.lat;
                 document.getElementById('longitude').value = e.lngLat.lng;
@@ -372,28 +301,74 @@
                 // Criar elemento HTML personalizado para o marcador
                 const el = document.createElement('div');
                 el.className = 'problem-marker';
-                
-                // Cor baseada no score
-                const score = problema.upvotes - problema.downvotes;
-                if (score > 5) el.classList.add('high-score');
-                else if (score > 0) el.classList.add('medium-score');
+
+                // Cor baseada no tipo (titulo armazena o tipo selecionado)
+                const tipo = (problema.titulo || '').toLowerCase();
+
+                if (tipo.includes('buraco') || tipo.includes('bueiro')) {
+                    el.classList.add('marker-buraco'); // vermelho
+                } else if (tipo.includes('lixo') || tipo.includes('entulho')) {
+                    el.classList.add('marker-lixo');   // verde
+                } else {
+                    el.classList.add('marker-outros'); // cinza
+                }
+
+                const dataFormatada = problema.created_at
+                    ? new Date(problema.created_at).toLocaleDateString('pt-BR')
+                    : '';
+
+                const popupHtml = `
+                    <div style="padding: 10px; max-width: 260px; font-size: 14px;">
+                        <h3 style="margin: 0 0 6px 0; color: #2c3e50;">${problema.titulo}</h3>
+                        <p style="margin: 0 0 8px 0; color: #7f8c8d;">
+                            ${problema.descricao || 'Sem descrição'}
+                        </p>
+                        ${problema.foto_url ? `
+                            <img src="${problema.foto_url}" 
+                                 style="width: 100%; border-radius: 5px; margin-bottom: 8px;">
+                        ` : ''}
+                        <div style="font-size: 12px; color: #95a5a6; margin-bottom: 6px;">
+                            Por: ${problema.usuario_nome || 'Anônimo'}<br>
+                            ${dataFormatada ? `Registrado em: ${dataFormatada}` : ''}
+                        </div>
+                        <div class="popup-votos" data-id="${problema.id}"
+                             style="display:flex; gap:10px; font-size:13px;">
+                            <button class="btn-voto" data-vote="upvote"
+                                    style="border:none; cursor:pointer; background:#ecf0f1; padding:4px 8px; border-radius:4px;">
+                                👍 <span class="count-up">${problema.upvotes || 0}</span>
+                            </button>
+                            <button class="btn-voto" data-vote="downvote"
+                                    style="border:none; cursor:pointer; background:#ecf0f1; padding:4px 8px; border-radius:4px;">
+                                👎 <span class="count-down">${problema.downvotes || 0}</span>
+                            </button>
+                        </div>
+                    </div>
+                `;
+
+                const popup = new mapboxgl.Popup({
+                    offset: 25,
+                    closeButton: true,      // botão de fechar
+                    closeOnClick: true      // fecha ao clicar no mapa, não dentro do popup
+                }).setHTML(popupHtml);
 
                 // Criar marcador
                 const marker = new mapboxgl.Marker(el)
                     .setLngLat([problema.longitude, problema.latitude])
-                    .setPopup(new mapboxgl.Popup({ offset: 25 })
-                        .setHTML(`
-                            <div style="padding: 10px; max-width: 250px;">
-                                <h3 style="margin: 0 0 10px 0; color: #2c3e50;">${problema.titulo}</h3>
-                                <p style="margin: 0 0 10px 0; color: #7f8c8d;">${problema.descricao || 'Sem descrição'}</p>
-                                ${problema.foto_url ? `<img src="${problema.foto_url}" style="width: 100%; border-radius: 5px; margin-bottom: 10px;">` : ''}
-                                <div style="font-size: 12px; color: #95a5a6;">
-                                    Por: ${problema.usuario_nome}<br>
-                                    👍 ${problema.upvotes} | 👎 ${problema.downvotes}
-                                </div>
-                            </div>
-                        `))
                     .addTo(map);
+
+                const markerEl = marker.getElement();
+
+                // Mostrar popup ao passar o mouse (hover)
+                markerEl.addEventListener('mouseenter', () => {
+                    if (!popup.isOpen()) {
+                        popup.setLngLat(marker.getLngLat()).addTo(map);
+                    }
+                });
+
+                // E também ao clicar (caso o usuário clique depois)
+                markerEl.addEventListener('click', () => {
+                    popup.setLngLat(marker.getLngLat()).addTo(map);
+                });
 
                 markers.push(marker);
             });
@@ -454,16 +429,59 @@
             }
         });
 
-        // Logout
+        // Votação (like / dislike) - evento global
+        document.addEventListener('click', async (e) => {
+            const btn = e.target.closest('.btn-voto');
+            if (!btn) return;
+
+            const container = btn.closest('.popup-votos');
+            if (!container) return;
+
+            const problemaId = container.getAttribute('data-id');
+            const tipo = btn.getAttribute('data-vote');
+            const token = localStorage.getItem('token');
+
+            if (!token) {
+                alert('Você precisa estar logado para votar.');
+                return;
+            }
+
+            try {
+                const resp = await fetch(`/problemas/${problemaId}/votar`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ tipo })
+                });
+
+                const data = await resp.json();
+
+                if (data.success) {
+                    const upSpan = container.querySelector('.count-up');
+                    const downSpan = container.querySelector('.count-down');
+                    if (upSpan) upSpan.textContent = data.upvotes;
+                    if (downSpan) downSpan.textContent = data.downvotes;
+                } else {
+                    alert('Erro ao votar: ' + data.message);
+                }
+            } catch (err) {
+                console.error(err);
+                alert('Erro de conexão ao votar.');
+            }
+        });
+
+        // Logout -> volta pra HOME
         function logout() {
             localStorage.removeItem('token');
             localStorage.removeItem('user');
-            window.location.href = '/login.html';
+            window.location.href = '/index.html';
         }
 
         // Loading
         function showLoading(show) {
-            document.getElementById('loading').style.display = show ? 'block' : 'none';
+            document.getElementById('loading').style.display = show ? 'flex' : 'none';
         }
 
         // Fechar modal clicando fora
