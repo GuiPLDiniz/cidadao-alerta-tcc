@@ -212,6 +212,25 @@
                     ? new Date(p.created_at).toLocaleDateString('pt-BR')
                     : 'Data não informada';
 
+                // item.innerHTML = `
+                //     <div class="problem-header">
+                //         <div class="problem-title">${p.titulo}</div>
+                //         <div class="problem-status" style="${statusStyle}">${statusText}</div>
+                //     </div>
+                //     <div class="problem-meta">
+                //         ${dataFormatada}
+                //         ${p.local || p.bairro ? ' · ' + (p.local || p.bairro) : ''}
+                //     </div>
+                //     <div class="problem-description">
+                //         ${p.descricao || 'Sem descrição detalhada.'}
+                //     </div>
+                //     <div class="problem-footer">
+                //         <span>👍 ${p.upvotes || 0} · 👎 ${p.downvotes || 0}</span>
+                //         <span>ID: ${p.id}</span>
+                //     </div>
+                // `;
+                
+                //alteração do dia 22/12/25 - adicionando botão de deletar (troquei o codigo acima) ver se deu certo !!!!!!!!!
                 item.innerHTML = `
                     <div class="problem-header">
                         <div class="problem-title">${p.titulo}</div>
@@ -224,14 +243,72 @@
                     <div class="problem-description">
                         ${p.descricao || 'Sem descrição detalhada.'}
                     </div>
+                    ${p.foto_url ? `<div class="problem-photo"><img src="${p.foto_url}" alt="Foto do problema"></div>` : ''}
                     <div class="problem-footer">
                         <span>👍 ${p.upvotes || 0} · 👎 ${p.downvotes || 0}</span>
-                        <span>ID: ${p.id}</span>
+                        <div class="problem-actions">
+                            <span>ID: ${p.id}</span>
+                            <button class="btn-delete" onclick="deleteProblem(${p.id})" data-id="${p.id}">
+                                🗑️ Deletar
+                            </button>
+                        </div>
                     </div>
                 `;
+                //^^ fim da alteração do dia 22/12/25 - adicionando botão de deletar (troquei o codigo acima) ver se deu certo !!!!!!!!!
                 list.appendChild(item);
             });
         }
+
+        //TAMBÉM ALTERAÇ~~AO DO DIA 22/12!!!!!!!!!!!!!!!!!!!!!!!!!!
+        // =============================================
+        // FUNÇÃO PARA DELETAR PROBLEMA
+        // =============================================
+
+        async function deleteProblem(problemId) {
+            // Confirmação
+            if (!confirm('Tem certeza que deseja deletar esta denúncia?\nEsta ação não pode ser desfeita!')) {
+                return;
+            }
+
+            const token = localStorage.getItem('token');
+            
+            if (!token) {
+                alert('Você precisa estar logado para deletar denúncias.');
+                return;
+            }
+
+            try {
+                const response = await fetch(`/problemas/${problemId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    alert('✅ Denúncia deletada com sucesso!');
+                    
+                    // Remover da lista local
+                    allProblems = allProblems.filter(p => p.id !== problemId);
+                    
+                    // Recarregar a visualização
+                    const activeFilter = document.querySelector('.filter-pill.active').getAttribute('data-status');
+                    renderProblems(activeFilter);
+                    
+                    // Mostrar estado vazio se necessário
+                    if (allProblems.length === 0) {
+                        document.getElementById('emptyState').style.display = 'block';
+                    }
+                } else {
+                    alert('❌ Erro: ' + data.message);
+                }
+            } catch (error) {
+                console.error('Erro ao deletar:', error);
+                alert('❌ Erro de conexão ao deletar denúncia');
+            }
+        } //FIM DA ALTERAÇÃO DO DIA 22/12 ^^!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     </script>
 </body>
 </html>

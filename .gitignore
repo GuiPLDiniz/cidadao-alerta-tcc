@@ -137,3 +137,56 @@ dist
 # Vite logs files
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
+
+
+
+#alteracoes dia 22/12 manha:
+
+
+# ============================================
+# CIDADAO ALERTA - CONFIGURAÇÕES ESPECÍFICAS
+# ============================================
+
+# Uploads de imagens dos usuários
+public/uploads/*
+!public/uploads/.gitkeep
+
+# Arquivos de backup
+*.backup
+*.BAK
+*.old
+
+# Arquivos compactados
+*.zip
+*.rar
+*.7z
+
+# Instaladores
+postgis_*.exe
+
+# VS Code específico do projeto
+.vscode/settings.json
+
+# Environment files (exceto exemplo)
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Sistema operacional
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# IDE
+.idea/
+*.swp
+*.swo
+
+
+*.MEU-BACKUP
+*.BACKUP
+
+echo "backend/public/uploads/" >> .gitignore
+
+#fim das alteracoes dia 22 manha

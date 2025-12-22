@@ -487,6 +487,88 @@ app.post('/problemas/:id/votar', autenticarToken, async (req, res) => {
   }
 });
 
+
+//alteração dia 22/12/25 9:29 da manhã (adicionei o codigo abaixo sem substituir nenhum outro) - ver se deu certo !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+// =============================================
+// 🗑️  DELETAR PROBLEMA (apenas dono ou admin)
+// =============================================
+
+// DELETE /problemas/:id - Deletar problema (apenas dono)
+app.delete('/problemas/:id', autenticarToken, async (req, res) => {
+  try {
+    const problemaId = parseInt(req.params.id, 10);
+    const usuarioId = req.usuario.id;
+
+    // 1. Verificar se o problema existe e se pertence ao usuário
+    const problemaResult = await pool.query(
+      'SELECT id, usuario_id, foto_url FROM problemas WHERE id = $1',
+      [problemaId]
+    );
+
+    if (problemaResult.rows.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: 'Problema não encontrado'
+      });
+    }
+
+    const problema = problemaResult.rows[0];
+
+    // 2. Verificar se o usuário é o dono do problema
+    if (problema.usuario_id !== usuarioId) {
+      return res.status(403).json({
+        success: false,
+        message: 'Você não tem permissão para deletar este problema'
+      });
+    }
+
+    // 3. Iniciar transação para deletar relacionamentos
+    await pool.query('BEGIN');
+
+    // 4. Deletar votos relacionados
+    await pool.query('DELETE FROM votos WHERE problema_id = $1', [problemaId]);
+
+    // 5. Deletar comentários relacionados
+    await pool.query('DELETE FROM comentarios WHERE problema_id = $1', [problemaId]);
+
+    // 6. Deletar o problema
+    await pool.query('DELETE FROM problemas WHERE id = $1', [problemaId]);
+
+    // 7. (Opcional) Deletar a imagem do servidor, se existir
+    if (problema.foto_url) {
+      const fs = require('fs').promises;
+      const path = require('path');
+      const fotoPath = path.join(__dirname, 'public', problema.foto_url);
+      
+      try {
+        await fs.unlink(fotoPath);
+        console.log(`Imagem deletada: ${fotoPath}`);
+      } catch (err) {
+        console.warn(`Não foi possível deletar a imagem: ${err.message}`);
+        // Não falha a operação se a imagem não for deletada
+      }
+    }
+
+    await pool.query('COMMIT');
+
+    res.json({
+      success: true,
+      message: 'Problema deletado com sucesso'
+    });
+
+  } catch (error) {
+    await pool.query('ROLLBACK');
+    console.error('Erro ao deletar problema:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Erro ao deletar problema'
+    });
+  }
+});
+
+
+// ^fim da //alteração dia 22/12/25 9:29 da manhã - ver se deu certo !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
 // =============================================
 // 👤 PERFIL
 // =============================================

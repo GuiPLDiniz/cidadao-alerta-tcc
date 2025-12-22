@@ -266,11 +266,29 @@
             }
 
             // Quando clicar no mapa, definir coordenadas para o formulário e abrir modal
+            // map.on('click', function(e) {
+            //     document.getElementById('latitude').value = e.lngLat.lat;
+            //     document.getElementById('longitude').value = e.lngLat.lng;
+            //     openProblemModal();
+            // });
+
+            // Quando clicar no mapa, verificar se foi em área vazia
             map.on('click', function(e) {
-                document.getElementById('latitude').value = e.lngLat.lat;
-                document.getElementById('longitude').value = e.lngLat.lng;
-                openProblemModal();
+                // Pequeno delay para garantir que o popup do marcador tenha tempo de abrir
+                setTimeout(() => {
+                    // Verificar se algum popup está aberto
+                    const popups = document.getElementsByClassName('mapboxgl-popup');
+                    const hasOpenPopup = popups.length > 0;
+                    
+                    // Se não tem popup aberto, foi clique em área vazia
+                    if (!hasOpenPopup) {
+                        document.getElementById('latitude').value = e.lngLat.lat;
+                        document.getElementById('longitude').value = e.lngLat.lng;
+                        openProblemModal();
+                    }
+                }, 50);
             });
+
         }
 
         // Carregar problemas da API
@@ -491,6 +509,9 @@
                 closeProblemModal();
             }
         }
+
+        
+        
     </script>
 </body>
 </html>
