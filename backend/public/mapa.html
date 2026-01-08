@@ -1,496 +1,509 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cidadão Alerta - Mapa de Denúncias</title>
-    
-    <!-- Mapbox CSS -->
-    <link href="https://api.mapbox.com/mapbox-gl-js/v2.14.1/mapbox-gl.css" rel="stylesheet">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cidadão Alerta - Mapa de Denúncias</title>
 
-    <!-- Seus CSS -->
-    <link rel="stylesheet" href="global.css">
-    <link rel="stylesheet" href="mapa.css">
+  <!-- Mapbox CSS -->
+  <link href="https://api.mapbox.com/mapbox-gl-js/v2.14.1/mapbox-gl.css" rel="stylesheet">
+
+  <!-- Seus CSS -->
+  <link rel="stylesheet" href="global.css">
+  <link rel="stylesheet" href="mapa.css">
 </head>
 <body>
-    <!-- Overlay para fechar sidebar (mobile) -->
-    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+  <!-- Overlay para fechar sidebar (mobile) -->
+  <div class="sidebar-overlay" id="sidebarOverlay"></div>
 
-    <!-- Sidebar -->
-    <div class="sidebar" id="sidebar">
-        <div class="sidebar-header">
-            <h2>Cidadão Alerta</h2>
-        </div>
-        
-        <ul class="sidebar-menu">
-            <li>
-                <a href="mapa.html" class="active" id="menu-mapa">
-                    Mapa de Denúncias
-                </a>
-            </li>
-            <li>
-                <a href="denuncias.html" id="menu-denuncias">
-                    Minhas Denúncias
-                </a>
-            </li>
-            <li>
-                <a href="conta.html" id="menu-conta">
-                    Minha Conta
-                </a>
-            </li>
-            <li>
-                <a href="ajuda.html" id="menu-ajuda">
-                    Ajuda
-                </a>
-            </li>
-            <li>
-                <a href="#" onclick="logout()" id="menu-sair">
-                    Sair
-                </a>
-            </li>
-        </ul>
-        
-        <div class="sidebar-footer">
-            <small>Cidadão Alerta v1.0</small>
-        </div>
+  <!-- Sidebar -->
+  <div class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <h2>Cidadão Alerta</h2>
     </div>
 
-    <!-- Conteúdo principal -->
-    <div class="main-content" id="mainContent">
-        <!-- Header -->
-        <div class="header">
-            <div class="logo-container">
-                <button class="menu-toggle" id="menuToggle">
-                    ☰
+    <ul class="sidebar-menu">
+      <li><a href="mapa.html" class="active" id="menu-mapa">Mapa de Denúncias</a></li>
+      <li><a href="denuncias.html" id="menu-denuncias">Minhas Denúncias</a></li>
+      <li><a href="conta.html" id="menu-conta">Minha Conta</a></li>
+      <li><a href="ajuda.html" id="menu-ajuda">Ajuda</a></li>
+      <li><a href="#" onclick="logout()" id="menu-sair">Sair</a></li>
+    </ul>
+
+    <div class="sidebar-footer">
+      <small>Cidadão Alerta v1.0</small>
+    </div>
+  </div>
+
+  <!-- Conteúdo principal -->
+  <div class="main-content" id="mainContent">
+    <!-- Header -->
+    <div class="header">
+      <div class="logo-container">
+        <button class="menu-toggle" id="menuToggle">☰</button>
+        <div class="logo">🏙️ Cidadão Alerta</div>
+      </div>
+      <div class="user-info" id="userInfo">
+        <div class="user-avatar" id="userAvatar" title="Ir para Minha Conta">👤</div>
+        <span class="user-name" id="userNameHeader"></span>
+      </div>
+    </div>
+
+    <!-- Mapa -->
+    <div id="map"></div>
+
+    <!-- Botão Adicionar Problema (+) -->
+    <button class="btn-add-problem" onclick="openProblemModal()">+</button>
+
+    <!-- Modal de Cadastro de Problema -->
+    <div id="problemModal" class="modal">
+      <div class="modal-content">
+        <h2>📝 Reportar Problema</h2>
+        <form id="problemForm">
+          <div class="form-group">
+            <label for="tipo">Tipo de Problema:</label>
+            <select id="tipo" name="titulo" required>
+              <option value="">Selecione um tipo</option>
+              <option value="Buracos e bueiros">Buracos ou bueiros</option>
+              <option value="Lixo e entulho">Lixo acumulado / entulho</option>
+              <option value="Iluminação pública">Iluminação pública</option>
+              <option value="Outros">Outros tipos de problema</option>
+            </select>
+            <small class="tip-text">
+              Escolha o tipo acima e use a descrição para detalhar melhor o problema.
+            </small>
+          </div>
+
+          <div class="form-group">
+            <label for="descricao">Descrição:</label>
+            <textarea id="descricao" name="descricao" rows="3"
+              placeholder="Descreva o problema em detalhes..."></textarea>
+          </div>
+
+          <div class="form-group">
+            <label for="foto">Foto (opcional):</label>
+            <input type="file" id="foto" name="foto" accept="image/*">
+          </div>
+
+          <input type="hidden" id="latitude" name="latitude">
+          <input type="hidden" id="longitude" name="longitude">
+
+          <button type="submit" class="btn-submit">📤 Enviar Denúncia</button>
+          <button type="button" class="btn-close" onclick="closeProblemModal()">Cancelar</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Loading -->
+    <div id="loading" class="loading" style="display: none;">
+      <div class="loading-spinner"></div>
+      <span>Carregando...</span>
+    </div>
+  </div>
+
+  <!-- Mapbox JS -->
+  <script src="https://api.mapbox.com/mapbox-gl-js/v2.14.1/mapbox-gl.js"></script>
+
+  <script>
+    mapboxgl.accessToken = 'pk.eyJ1IjoiZ3VpcGxkIiwiYSI6ImNtaTZnbGZ4MjAwMzMyaXB2aWZyOTBiYngifQ.I4V_bUVLj3aX4klKSBQvUA';
+
+    let map;
+    let userLocation = null;
+    let markers = []; // { id, marker, popup }
+    let currentUser = null;
+
+    document.addEventListener('DOMContentLoaded', () => {
+      checkAuth();
+      initMap();
+      setupSidebar();
+    });
+
+    // =========================================
+    // AUTENTICAÇÃO / HEADER
+    // =========================================
+    function checkAuth() {
+      const token = localStorage.getItem('token');
+      const user = localStorage.getItem('user');
+
+      if (!token || !user) {
+        window.location.href = '/login.html';
+        return;
+      }
+
+      currentUser = JSON.parse(user);
+
+      const userNameEl = document.getElementById('userNameHeader');
+      if (userNameEl && currentUser.name) {
+        userNameEl.textContent = currentUser.name;
+      }
+
+      const avatarEl = document.getElementById('userAvatar');
+      const userInfo = document.getElementById('userInfo');
+      const goToConta = () => window.location.href = 'conta.html';
+
+      if (avatarEl) avatarEl.addEventListener('click', goToConta);
+      if (userInfo) userInfo.addEventListener('click', goToConta);
+    }
+
+    // =========================================
+    // SIDEBAR
+    // =========================================
+    function setupSidebar() {
+      const menuToggle = document.getElementById('menuToggle');
+      const sidebarOverlay = document.getElementById('sidebarOverlay');
+      const mainContent = document.getElementById('mainContent');
+
+      menuToggle.addEventListener('click', (e) => {
+        e.stopPropagation();
+        toggleSidebar(true);
+      });
+
+      sidebarOverlay.addEventListener('click', () => toggleSidebar(false));
+
+      const menuItems = document.querySelectorAll('.sidebar-menu a:not(#menu-sair)');
+      menuItems.forEach(item => {
+        item.addEventListener('click', () => toggleSidebar(false));
+      });
+
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') toggleSidebar(false);
+      });
+    }
+
+    function toggleSidebar(show) {
+      const sidebar = document.getElementById('sidebar');
+      const sidebarOverlay = document.getElementById('sidebarOverlay');
+      const mainContent = document.getElementById('mainContent');
+
+      if (show === undefined) {
+        show = !sidebar.classList.contains('active');
+      }
+
+      if (show) {
+        sidebar.classList.add('active');
+        sidebarOverlay.classList.add('active');
+        if (window.innerWidth > 768) mainContent.classList.add('sidebar-active');
+      } else {
+        sidebar.classList.remove('active');
+        sidebarOverlay.classList.remove('active');
+        mainContent.classList.remove('sidebar-active');
+      }
+    }
+
+    // =========================================
+    // MAPA
+    // =========================================
+    function initMap() {
+      map = new mapboxgl.Map({
+        container: 'map',
+        style: 'mapbox://styles/mapbox/streets-v12',
+        center: [-46.6333, -23.5505],
+        zoom: 12
+      });
+
+      map.addControl(new mapboxgl.NavigationControl());
+
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          position => {
+            userLocation = [position.coords.longitude, position.coords.latitude];
+            map.setCenter(userLocation);
+            map.setZoom(14);
+            // raio 50 km
+            loadProblemas(userLocation[1], userLocation[0], 50);
+          },
+          error => {
+            console.error('Erro ao obter localização:', error);
+            loadProblemas(-23.5505, -46.6333, 50);
+          }
+        );
+      } else {
+        loadProblemas(-23.5505, -46.6333, 50);
+      }
+
+      // Clique no mapa:
+      // - se tiver popup aberto: só fecha;
+      // - se não tiver popup aberto: abre modal de nova denúncia
+      map.on('click', (e) => {
+        if (closeOpenPopups()) {
+          return; // apenas fechou popup
+        }
+
+        document.getElementById('latitude').value = e.lngLat.lat;
+        document.getElementById('longitude').value = e.lngLat.lng;
+        openProblemModal();
+      });
+    }
+
+    // Fecha todos os popups; retorna true se algum foi fechado
+    function closeOpenPopups() {
+      let fechou = false;
+      markers.forEach(obj => {
+        if (obj.popup && obj.popup.isOpen && obj.popup.isOpen()) {
+          obj.popup.remove();
+          fechou = true;
+        }
+      });
+      return fechou;
+    }
+
+    // lat, lng, raio em km
+    async function loadProblemas(lat, lng, raio = 50) {
+      showLoading(true);
+      try {
+        const resp = await fetch(`/problemas?lat=${lat}&lng=${lng}&raio=${raio}`);
+        const data = await resp.json();
+        if (data.success) {
+          addMarkersToMap(data.problemas);
+        } else {
+          console.error('Erro ao carregar problemas:', data.message);
+        }
+      } catch (err) {
+        console.error('Erro ao carregar problemas:', err);
+      } finally {
+        showLoading(false);
+      }
+    }
+
+    function addMarkersToMap(problemas) {
+      // Remove antigos
+      markers.forEach(obj => obj.marker.remove());
+      markers = [];
+
+      problemas.forEach(problema => {
+        const el = document.createElement('div');
+        el.className = 'problem-marker';
+
+        const tipo = (problema.titulo || '').toLowerCase();
+        if (tipo.includes('buraco') || tipo.includes('bueiro')) {
+          el.classList.add('marker-buraco');
+        } else if (tipo.includes('lixo') || tipo.includes('entulho')) {
+          el.classList.add('marker-lixo');
+        } else {
+          el.classList.add('marker-outros');
+        }
+
+        const dataCriacao = problema.criado_em
+          ? new Date(problema.criado_em).toLocaleDateString('pt-BR')
+          : '';
+
+        let botoesExtra = '';
+        if (currentUser && currentUser.id === problema.usuario_id) {
+          botoesExtra = `
+            <button onclick="deletarProblema(${problema.id})"
+                    style="border:none; background:none; cursor:pointer; color:#e74c3c; margin-left:6px;">
+              🗑 Excluir
+            </button>
+          `;
+        }
+
+        const popupHtml = `
+          <div style="padding: 10px; max-width: 260px;">
+            <h3 style="margin: 0 0 8px 0; color: #2c3e50;">${problema.titulo}</h3>
+            <p style="margin: 0 0 8px 0; color: #7f8c8d;">
+              ${problema.descricao || 'Sem descrição'}
+            </p>
+            ${problema.foto_url ? `<img src="${problema.foto_url}"
+              style="width: 100%; border-radius: 5px; margin-bottom: 8px;">` : ''}
+            <div style="font-size: 12px; color: #95a5a6; margin-bottom: 6px;">
+              Por: ${problema.usuario_nome || 'Anônimo'}
+              ${dataCriacao ? `<br>Registrado em: ${dataCriacao}` : ''}
+            </div>
+            <div style="display:flex; justify-content:space-between; align-items:center; font-size:13px;">
+              <div>
+                <button onclick="votarProblema(${problema.id}, 'upvote')"
+                        style="border:none; background:none; cursor:pointer; color:#27ae60; margin-right:8px;">
+                  👍 <span id="up-${problema.id}">${problema.upvotes || 0}</span>
                 </button>
-                <div class="logo">🏙️ Cidadão Alerta</div>
+                <button onclick="votarProblema(${problema.id}, 'downvote')"
+                        style="border:none; background:none; cursor:pointer; color:#e74c3c;">
+                  👎 <span id="down-${problema.id}">${problema.downvotes || 0}</span>
+                </button>
+                ${botoesExtra}
+              </div>
             </div>
-            <div class="user-info" id="userInfo">
-                <div class="user-avatar" id="userAvatar" title="Ir para Minha Conta">👤</div>
-                <span class="user-name" id="userNameHeader"></span>
-            </div>
-        </div>
+          </div>
+        `;
 
-        <!-- Mapa -->
-        <div id="map"></div>
+        const popup = new mapboxgl.Popup({
+          offset: 25,
+          closeButton: false,
+          closeOnClick: false
+        }).setHTML(popupHtml);
 
-        <!-- Botão Adicionar Problema -->
-        <button class="btn-add-problem" onclick="openProblemModal()">+</button>
+        const marker = new mapboxgl.Marker(el)
+          .setLngLat([problema.longitude, problema.latitude])
+          .addTo(map);
 
-        <!-- Modal de Cadastro de Problema -->
-        <div id="problemModal" class="modal">
-            <div class="modal-content">
-                <h2>📝 Reportar Problema</h2>
-                <form id="problemForm">
-                    <div class="form-group">
-                        <label for="tipo">Tipo de Problema:</label>
-                        <select id="tipo" name="titulo" required>
-                            <option value="">Selecione um tipo</option>
-                            <option value="Buracos e bueiros">Buracos ou bueiros</option>
-                            <option value="Lixo e entulho">Lixo acumulado / entulho</option>
-                            <option value="Iluminação pública">Iluminação pública</option>
-                            <option value="Outros">Outros tipos de problema</option>
-                        </select>
-                        <small class="tip-text">
-                            Escolha o tipo acima e use a descrição para detalhar melhor o problema.
-                        </small>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="descricao">Descrição:</label>
-                        <textarea id="descricao" name="descricao" rows="3" placeholder="Descreva o problema em detalhes..."></textarea>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="foto">Foto (opcional):</label>
-                        <input type="file" id="foto" name="foto" accept="image/*">
-                    </div>
-                    
-                    <input type="hidden" id="latitude" name="latitude">
-                    <input type="hidden" id="longitude" name="longitude">
-                    
-                    <button type="submit" class="btn-submit">📤 Enviar Denúncia</button>
-                    <button type="button" class="btn-close" onclick="closeProblemModal()">Cancelar</button>
-                </form>
-            </div>
-        </div>
-
-        <!-- Loading -->
-        <div id="loading" class="loading" style="display: none;">
-            <div class="loading-spinner"></div>
-            <span>Carregando...</span>
-        </div>
-    </div>
-
-    <!-- Mapbox JS -->
-    <script src="https://api.mapbox.com/mapbox-gl-js/v2.14.1/mapbox-gl.js"></script>
-    
-    <script>
-        // Configuração do Mapbox
-        mapboxgl.accessToken = 'pk.eyJ1IjoiZ3VpcGxkIiwiYSI6ImNtaTZnbGZ4MjAwMzMyaXB2aWZyOTBiYngifQ.I4V_bUVLj3aX4klKSBQvUA';
-        
-        let map;
-        let userLocation = null;
-        let markers = [];
-        let currentUser = null;
-        let isSidebarActive = false;
-
-        // Inicializar quando a página carregar
-        document.addEventListener('DOMContentLoaded', function() {
-            checkAuth();
-            initMap();
-            setupSidebar();
+        // clique no pino: abre/fecha popup
+        el.addEventListener('click', (e) => {
+          e.stopPropagation(); // não deixar o clique "vazar" pro mapa
+          const estavaAberto = popup.isOpen && popup.isOpen();
+          closeOpenPopups();
+          if (!estavaAberto) {
+            popup
+              .setLngLat([problema.longitude, problema.latitude])
+              .addTo(map);
+          }
         });
 
-        // Verificar se usuário está logado e configurar header
-        function checkAuth() {
-            const token = localStorage.getItem('token');
-            const user = localStorage.getItem('user');
-            
-            if (!token || !user) {
-                window.location.href = '/login.html';
-                return;
-            }
-            
-            currentUser = JSON.parse(user);
+        markers.push({ id: problema.id, marker, popup });
+      });
+    }
 
-            // Atualiza nome no header
-            const userNameEl = document.getElementById('userNameHeader');
-            if (userNameEl && currentUser.name) {
-                userNameEl.textContent = currentUser.name;
-            }
+    // =========================================
+    // MODAL
+    // =========================================
+    function openProblemModal() {
+      if (!document.getElementById('latitude').value && userLocation) {
+        document.getElementById('latitude').value = userLocation[1];
+        document.getElementById('longitude').value = userLocation[0];
+      }
+      document.getElementById('problemModal').style.display = 'flex';
+    }
 
-            // Clique no avatar OU na área user-info -> vai para Minha Conta
-            const avatarEl = document.getElementById('userAvatar');
-            const userInfo = document.getElementById('userInfo');
-            const goToConta = () => window.location.href = 'conta.html';
+    function closeProblemModal() {
+      document.getElementById('problemModal').style.display = 'none';
+      document.getElementById('problemForm').reset();
+    }
 
-            if (avatarEl) avatarEl.addEventListener('click', goToConta);
-            if (userInfo) userInfo.addEventListener('click', goToConta);
-        }
+    document.getElementById('problemForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
 
-        // Configurar sidebar
-        function setupSidebar() {
-            const menuToggle = document.getElementById('menuToggle');
-            const sidebarOverlay = document.getElementById('sidebarOverlay');
-            const mainContent = document.getElementById('mainContent');
-            
-            // Abrir sidebar
-            menuToggle.addEventListener('click', function(e) {
-                e.stopPropagation();
-                toggleSidebar(true);
-            });
-            
-            // Fechar sidebar ao clicar no overlay (mobile)
-            sidebarOverlay.addEventListener('click', function() {
-                toggleSidebar(false);
-            });
-            
-            // Fechar sidebar ao clicar em um item do menu (exceto Sair)
-            const menuItems = document.querySelectorAll('.sidebar-menu a:not(#menu-sair)');
-            menuItems.forEach(item => {
-                item.addEventListener('click', function() {
-                    toggleSidebar(false);
-                });
-            });
-            
-            // Fechar sidebar ao clicar no mapa
-            document.getElementById('map').addEventListener('click', function() {
-                toggleSidebar(false);
-            });
-            
-            // Fechar sidebar com a tecla ESC
-            document.addEventListener('keydown', function(e) {
-                if (e.key === 'Escape') {
-                    toggleSidebar(false);
-                }
-            });
-        }
-        
-        // Alternar visibilidade do sidebar
-        function toggleSidebar(show) {
-            const sidebar = document.getElementById('sidebar');
-            const sidebarOverlay = document.getElementById('sidebarOverlay');
-            const mainContent = document.getElementById('mainContent');
-            
-            if (show === undefined) {
-                show = !sidebar.classList.contains('active');
-            }
-            
-            if (show) {
-                sidebar.classList.add('active');
-                sidebarOverlay.classList.add('active');
-                if (window.innerWidth > 768) {
-                    mainContent.classList.add('sidebar-active');
-                }
-                isSidebarActive = true;
-            } else {
-                sidebar.classList.remove('active');
-                sidebarOverlay.classList.remove('active');
-                mainContent.classList.remove('sidebar-active');
-                isSidebarActive = false;
-            }
-        }
+      const formData = new FormData(e.target);
+      const token = localStorage.getItem('token');
 
-        // Inicializar mapa
-        function initMap() {
-            map = new mapboxgl.Map({
-                container: 'map',
-                style: 'mapbox://styles/mapbox/streets-v12',
-                center: [-46.6333, -23.5505], // São Paulo
-                zoom: 12
-            });
-
-            // Adicionar controles de navegação
-            map.addControl(new mapboxgl.NavigationControl());
-
-            // Obter localização do usuário
-            if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(
-                    position => {
-                        userLocation = [position.coords.longitude, position.coords.latitude];
-                        map.setCenter(userLocation);
-                        map.setZoom(14);
-                        
-                        // Carregar problemas próximos
-                        loadProblemas(userLocation[1], userLocation[0]);
-                    },
-                    error => {
-                        console.error('Erro ao obter localização:', error);
-                        loadProblemas(-23.5505, -46.6333); // Fallback para SP
-                    }
-                );
-            } else {
-                // Se geolocalização não disponível, usa SP
-                loadProblemas(-23.5505, -46.6333);
-            }
-
-            // Quando clicar no mapa, definir coordenadas para o formulário e abrir modal
-            map.on('click', function(e) {
-                document.getElementById('latitude').value = e.lngLat.lat;
-                document.getElementById('longitude').value = e.lngLat.lng;
-                openProblemModal();
-            });
-        }
-
-        // Carregar problemas da API
-        async function loadProblemas(lat, lng) {
-            showLoading(true);
-            
-            try {
-                const response = await fetch(`/problemas?lat=${lat}&lng=${lng}`);
-                const data = await response.json();
-                
-                if (data.success) {
-                    addMarkersToMap(data.problemas);
-                }
-            } catch (error) {
-                console.error('Erro ao carregar problemas:', error);
-            } finally {
-                showLoading(false);
-            }
-        }
-
-        // Adicionar marcadores no mapa
-        function addMarkersToMap(problemas) {
-            // Remover marcadores antigos
-            markers.forEach(marker => marker.remove());
-            markers = [];
-
-            problemas.forEach(problema => {
-                // Criar elemento HTML personalizado para o marcador
-                const el = document.createElement('div');
-                el.className = 'problem-marker';
-
-                // Cor baseada no tipo (titulo armazena o tipo selecionado)
-                const tipo = (problema.titulo || '').toLowerCase();
-
-                if (tipo.includes('buraco') || tipo.includes('bueiro')) {
-                    el.classList.add('marker-buraco'); // vermelho
-                } else if (tipo.includes('lixo') || tipo.includes('entulho')) {
-                    el.classList.add('marker-lixo');   // verde
-                } else {
-                    el.classList.add('marker-outros'); // cinza
-                }
-
-                const dataFormatada = problema.created_at
-                    ? new Date(problema.created_at).toLocaleDateString('pt-BR')
-                    : '';
-
-                const popupHtml = `
-                    <div style="padding: 10px; max-width: 260px; font-size: 14px;">
-                        <h3 style="margin: 0 0 6px 0; color: #2c3e50;">${problema.titulo}</h3>
-                        <p style="margin: 0 0 8px 0; color: #7f8c8d;">
-                            ${problema.descricao || 'Sem descrição'}
-                        </p>
-                        ${problema.foto_url ? `
-                            <img src="${problema.foto_url}" 
-                                 style="width: 100%; border-radius: 5px; margin-bottom: 8px;">
-                        ` : ''}
-                        <div style="font-size: 12px; color: #95a5a6; margin-bottom: 6px;">
-                            Por: ${problema.usuario_nome || 'Anônimo'}<br>
-                            ${dataFormatada ? `Registrado em: ${dataFormatada}` : ''}
-                        </div>
-                        <div class="popup-votos" data-id="${problema.id}"
-                             style="display:flex; gap:10px; font-size:13px;">
-                            <button class="btn-voto" data-vote="upvote"
-                                    style="border:none; cursor:pointer; background:#ecf0f1; padding:4px 8px; border-radius:4px;">
-                                👍 <span class="count-up">${problema.upvotes || 0}</span>
-                            </button>
-                            <button class="btn-voto" data-vote="downvote"
-                                    style="border:none; cursor:pointer; background:#ecf0f1; padding:4px 8px; border-radius:4px;">
-                                👎 <span class="count-down">${problema.downvotes || 0}</span>
-                            </button>
-                        </div>
-                    </div>
-                `;
-
-                const popup = new mapboxgl.Popup({
-                    offset: 25,
-                    closeButton: true,      // botão de fechar
-                    closeOnClick: true      // fecha ao clicar no mapa, não dentro do popup
-                }).setHTML(popupHtml);
-
-                // Criar marcador
-                const marker = new mapboxgl.Marker(el)
-                    .setLngLat([problema.longitude, problema.latitude])
-                    .addTo(map);
-
-                const markerEl = marker.getElement();
-
-                // Mostrar popup ao passar o mouse (hover)
-                markerEl.addEventListener('mouseenter', () => {
-                    if (!popup.isOpen()) {
-                        popup.setLngLat(marker.getLngLat()).addTo(map);
-                    }
-                });
-
-                // E também ao clicar (caso o usuário clique depois)
-                markerEl.addEventListener('click', () => {
-                    popup.setLngLat(marker.getLngLat()).addTo(map);
-                });
-
-                markers.push(marker);
-            });
-        }
-
-        // Modal functions
-        function openProblemModal() {
-            // Se não tem coordenadas definidas, usar localização atual
-            if (!document.getElementById('latitude').value && userLocation) {
-                document.getElementById('latitude').value = userLocation[1];
-                document.getElementById('longitude').value = userLocation[0];
-            }
-            
-            document.getElementById('problemModal').style.display = 'flex';
-        }
-
-        function closeProblemModal() {
-            document.getElementById('problemModal').style.display = 'none';
-            document.getElementById('problemForm').reset();
-        }
-
-        // Enviar formulário de problema
-        document.getElementById('problemForm').addEventListener('submit', async function(e) {
-            e.preventDefault();
-            
-            const formData = new FormData(this);
-            const token = localStorage.getItem('token');
-
-            showLoading(true);
-
-            try {
-                const response = await fetch('/problemas', {
-                    method: 'POST',
-                    headers: {
-                        'Authorization': `Bearer ${token}`
-                    },
-                    body: formData
-                });
-
-                const data = await response.json();
-
-                if (data.success) {
-                    alert('✅ Problema reportado com sucesso!');
-                    closeProblemModal();
-                    
-                    // Recarregar problemas
-                    if (userLocation) {
-                        loadProblemas(userLocation[1], userLocation[0]);
-                    }
-                } else {
-                    alert('❌ Erro ao reportar problema: ' + data.message);
-                }
-            } catch (error) {
-                console.error('Erro:', error);
-                alert('❌ Erro de conexão');
-            } finally {
-                showLoading(false);
-            }
+      showLoading(true);
+      try {
+        const resp = await fetch('/problemas', {
+          method: 'POST',
+          headers: { 'Authorization': `Bearer ${token}` },
+          body: formData
         });
 
-        // Votação (like / dislike) - evento global
-        document.addEventListener('click', async (e) => {
-            const btn = e.target.closest('.btn-voto');
-            if (!btn) return;
+        const data = await resp.json();
 
-            const container = btn.closest('.popup-votos');
-            if (!container) return;
+        if (data.success) {
+          alert('✅ Problema reportado com sucesso!');
+          closeProblemModal();
+          const center = map.getCenter();
+          // recarrega com raio 50 km
+          loadProblemas(center.lat, center.lng, 50);
+        } else {
+          alert('❌ Erro ao reportar problema: ' + data.message);
+        }
+      } catch (err) {
+        console.error('Erro ao criar problema:', err);
+        alert('❌ Erro de conexão ao criar problema.');
+      } finally {
+        showLoading(false);
+      }
+    });
 
-            const problemaId = container.getAttribute('data-id');
-            const tipo = btn.getAttribute('data-vote');
-            const token = localStorage.getItem('token');
+    // =========================================
+    // VOTAR (LIKE / DISLIKE)
+    // =========================================
+    async function votarProblema(id, tipo) {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        alert('Você precisa estar logado para votar.');
+        return;
+      }
 
-            if (!token) {
-                alert('Você precisa estar logado para votar.');
-                return;
-            }
-
-            try {
-                const resp = await fetch(`/problemas/${problemaId}/votar`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token}`
-                    },
-                    body: JSON.stringify({ tipo })
-                });
-
-                const data = await resp.json();
-
-                if (data.success) {
-                    const upSpan = container.querySelector('.count-up');
-                    const downSpan = container.querySelector('.count-down');
-                    if (upSpan) upSpan.textContent = data.upvotes;
-                    if (downSpan) downSpan.textContent = data.downvotes;
-                } else {
-                    alert('Erro ao votar: ' + data.message);
-                }
-            } catch (err) {
-                console.error(err);
-                alert('Erro de conexão ao votar.');
-            }
+      try {
+        const resp = await fetch(`/problemas/${id}/votar`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify({ tipo_voto: tipo })
         });
 
-        // Logout -> volta pra HOME
-        function logout() {
-            localStorage.removeItem('token');
-            localStorage.removeItem('user');
-            window.location.href = '/index.html';
+        const text = await resp.text();
+        let data = null;
+        try {
+          data = text ? JSON.parse(text) : null;
+        } catch (parseErr) {
+          console.error('Resposta não-JSON do /votar:', text);
+          alert('Erro inesperado ao registrar voto.');
+          return;
         }
 
-        // Loading
-        function showLoading(show) {
-            document.getElementById('loading').style.display = show ? 'flex' : 'none';
+        if (!resp.ok || !data || !data.success) {
+          console.error('Erro ao votar:', data);
+          alert(data && data.message ? data.message : 'Erro ao registrar voto.');
+          return;
         }
 
-        // Fechar modal clicando fora
-        window.onclick = function(event) {
-            const modal = document.getElementById('problemModal');
-            if (event.target === modal) {
-                closeProblemModal();
-            }
+        // Atualiza contadores no popup sem recarregar tudo
+        const upSpan = document.getElementById(`up-${id}`);
+        const downSpan = document.getElementById(`down-${id}`);
+        if (upSpan) upSpan.textContent = data.upvotes;
+        if (downSpan) downSpan.textContent = data.downvotes;
+
+      } catch (err) {
+        console.error('Erro de conexão ao votar:', err);
+        alert('Erro de conexão ao votar. Verifique se o servidor está rodando.');
+      }
+    }
+
+    // =========================================
+    // DELETAR PROBLEMA
+    // =========================================
+    async function deletarProblema(id) {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        alert('Você precisa estar logado para excluir.');
+        return;
+      }
+
+      const confirmar = confirm('Tem certeza que deseja excluir esta denúncia?');
+      if (!confirmar) return;
+
+      try {
+        const resp = await fetch(`/problemas/${id}/deletar`, {
+          method: 'POST',
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+
+        const data = await resp.json();
+        if (!resp.ok || !data.success) {
+          alert(data && data.message ? data.message : 'Erro ao excluir denúncia.');
+          return;
         }
-    </script>
+
+        alert('Denúncia excluída com sucesso!');
+        const center = map.getCenter();
+        // recarrega com raio 50 km
+        loadProblemas(center.lat, center.lng, 50);
+      } catch (err) {
+        console.error('Erro ao excluir denúncia:', err);
+        alert('Erro de conexão ao excluir denúncia.');
+      }
+    }
+
+    // =========================================
+    // UTILITÁRIOS
+    // =========================================
+    function logout() {
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      window.location.href = '/index.html';
+    }
+
+    function showLoading(show) {
+      document.getElementById('loading').style.display = show ? 'flex' : 'none';
+    }
+
+    // Fecha modal clicando fora
+    window.onclick = function (event) {
+      const modal = document.getElementById('problemModal');
+      if (event.target === modal) {
+        closeProblemModal();
+      }
+    };
+  </script>
 </body>
 </html>
+
